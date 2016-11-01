@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">BluetoothControl</string>
+    <string name="bonded_device">已配对设备</string>
+    <string name="new_device">新的设备</string>
+
+</resources>
