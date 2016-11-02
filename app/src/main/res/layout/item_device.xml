@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="15dp"
+    android:background="#F5F5F5"
     >
 
     <TextView
@@ -14,6 +15,27 @@
         android:textSize="20sp"
         android:textStyle="bold"
         />
+
+    <TextView
+        android:id="@+id/deviceState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_alignParentEnd="true"
+        android:text="@string/connected"
+        android:textSize="12sp"
+        android:visibility="gone"
+        />
+
+    <!--<Button-->
+        <!--android:id="@+id/deviceSendData"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerInParent="true"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:text="@string/action_send"-->
+        <!--android:textSize="12sp"-->
+        <!--/>-->
 
     <TextView
         android:id="@+id/deviceAddress"

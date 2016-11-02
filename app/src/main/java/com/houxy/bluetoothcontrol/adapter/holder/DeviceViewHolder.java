@@ -1,6 +1,6 @@
 package com.houxy.bluetoothcontrol.adapter.holder;
 
-import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -18,9 +18,11 @@ import butterknife.Bind;
 public class DeviceViewHolder extends BaseViewHolder {
 
     @Bind(R.id.deviceName)
-    private TextView deviceName;
+    TextView deviceName;
     @Bind(R.id.deviceAddress)
-    private TextView deviceAddress;
+    TextView deviceAddress;
+    @Bind(R.id.deviceState)
+    TextView deviceState;
 
     public DeviceViewHolder(ViewGroup root, OnItemClickListener onItemClickListener) {
         super(root, R.layout.item_device, onItemClickListener);
@@ -28,8 +30,11 @@ public class DeviceViewHolder extends BaseViewHolder {
 
     @Override
     public void bindData(Object o) {
-        Device device = (Device)o;
+        Device device = (Device) o;
         deviceAddress.setText(device.getDeviceAddress());
         deviceName.setText(device.getDeviceName());
+        if( device.getDeviceState() ){
+            deviceState.setVisibility(View.VISIBLE);
+        }
     }
 }

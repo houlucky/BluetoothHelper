@@ -1,12 +1,14 @@
 package com.houxy.bluetoothcontrol.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.houxy.bluetoothcontrol.adapter.holder.BondedViewHolder;
 import com.houxy.bluetoothcontrol.adapter.holder.DeviceViewHolder;
 import com.houxy.bluetoothcontrol.adapter.holder.NewViewHolder;
 import com.houxy.bluetoothcontrol.base.BaseViewHolder;
+import com.houxy.bluetoothcontrol.base.i.OnItemClickListener;
 import com.houxy.bluetoothcontrol.bean.Device;
 
 import java.util.ArrayList;
@@ -21,7 +23,8 @@ public class BtAdapter extends RecyclerView.Adapter{
     private static final int BONDED = 0;
     private static final int NEW = 1;
     private static final int DEVICE = 2;
-    public int bondedNum;
+    private int bondedNum;
+    private OnItemClickListener onItemClickListener;
 
     public BtAdapter(){
         devices = new ArrayList<>();
@@ -35,7 +38,7 @@ public class BtAdapter extends RecyclerView.Adapter{
         }else if(viewType == NEW){
             return new NewViewHolder(parent);
         }else if(viewType == DEVICE){
-            return new DeviceViewHolder(parent, null);
+            return new DeviceViewHolder(parent, onItemClickListener);
         }
 
         return null;
@@ -49,14 +52,15 @@ public class BtAdapter extends RecyclerView.Adapter{
         }else if(position == 1+bondedNum){
             ((BaseViewHolder)holder).bindData();
         }else {
-            ((BaseViewHolder)holder).bindData(devices.get(position));
+            Log.d("TAG", "onBind Pos : " + position);
+            ((DeviceViewHolder)holder).bindData(devices.get(position));
         }
 
     }
 
     @Override
     public int getItemCount() {
-        return devices.size() + 2;
+        return devices.size();
     }
 
     @Override
@@ -73,6 +77,18 @@ public class BtAdapter extends RecyclerView.Adapter{
     }
 
     public void setDevices(ArrayList<Device> devices) {
-        this.devices = devices;
+        this.devices.addAll(devices);
+    }
+
+    public ArrayList<Device> getDevices() {
+        return devices;
+    }
+
+    public void setBondedNum(int bondedNum) {
+        this.bondedNum = bondedNum;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 }

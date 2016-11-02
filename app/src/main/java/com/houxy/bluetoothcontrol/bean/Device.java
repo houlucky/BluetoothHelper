@@ -8,10 +8,12 @@ public class Device {
 
     private String deviceName;
     private String deviceAddress;
+    private boolean deviceState;
 
     public Device(String deviceName, String deviceAddress){
         this.deviceAddress = deviceAddress;
         this.deviceName = deviceName;
+        deviceState = false;
     }
 
     public void setDeviceName(String deviceName) {
@@ -28,5 +30,13 @@ public class Device {
 
     public String getDeviceName() {
         return deviceName;
+    }
+
+    public void setDeviceState(boolean deviceState) {
+        this.deviceState = deviceState;
+    }
+
+    public boolean getDeviceState(){
+        return deviceState;
     }
 }

@@ -1,6 +1,11 @@
 <resources>
-    <string name="app_name">BluetoothControl</string>
+    <string name="app_name">BluetoothHelper</string>
     <string name="bonded_device">已配对设备</string>
     <string name="new_device">新的设备</string>
+    <string name="connected">已连接</string>
+    <string name="action_setting">设置</string>
+    <string name="action_send">发送数据</string>
+    <string name="action_send_data">请输入待发送的数据</string>
+    <string name="action_scan">扫描</string>
 
 </resources>

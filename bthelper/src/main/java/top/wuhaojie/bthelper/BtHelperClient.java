@@ -37,6 +37,8 @@ public class BtHelperClient {
 
     private static final int HANDLER_WHAT_NEW_MSG = 1;
     private static final int HANDLER_WHAT_NEW_RESPONSE = 2;
+    private static final int HANDLER_WHAT_CONNECTION_START = 3;
+    private static final int HANDLER_WHAT_CONNECTION_SUCCESS = 4;
 
     private static final int DEFAULT_BUFFER_SIZE = 256;
 
@@ -53,7 +55,7 @@ public class BtHelperClient {
 
     private BluetoothAdapter mBluetoothAdapter;
 
-    private volatile Receiver mReceiver = new Receiver();
+    private volatile Receiver mReceiver;
 
     private List<BluetoothDevice> mBondedList = new ArrayList<>();
     private List<BluetoothDevice> mNewList = new ArrayList<>();
@@ -94,6 +96,18 @@ public class BtHelperClient {
     private BtHelperClient(Context context) {
         mContext = context.getApplicationContext();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mReceiver == null){
+            mReceiver = new Receiver();
+
+        }
+
+        // ACTION_FOUND
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        mContext.registerReceiver(mReceiver, filter);
+
+        // ACTION_DISCOVERY_FINISHED
+        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        mContext.registerReceiver(mReceiver, filter);
     }
 
 
@@ -128,23 +142,21 @@ public class BtHelperClient {
             return;
         }
 
-        if (mReceiver == null) mReceiver = new Receiver();
 
-        // ACTION_FOUND
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        mContext.registerReceiver(mReceiver, filter);
-
-        // ACTION_DISCOVERY_FINISHED
-        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        mContext.registerReceiver(mReceiver, filter);
 
         mNeed2unRegister = true;
 
         mBondedList.clear();
         mNewList.clear();
 
+        if(!mBluetoothAdapter.isEnabled()){
+            mBluetoothAdapter.enable();
+//            mBluetoothAdapter.cancelDiscovery();
+        }
+
         if (mBluetoothAdapter.isDiscovering())
             mBluetoothAdapter.cancelDiscovery();
+
         mBluetoothAdapter.startDiscovery();
 
         if (mOnSearchDeviceListener != null)
@@ -154,6 +166,9 @@ public class BtHelperClient {
 
 
     private class Receiver extends BroadcastReceiver {
+
+        
+
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -161,8 +176,9 @@ public class BtHelperClient {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                if (mOnSearchDeviceListener != null)
-                    mOnSearchDeviceListener.onNewDeviceFound(device);
+                //TODO:没太大的用
+//                if (mOnSearchDeviceListener != null)
+//                    mOnSearchDeviceListener.onNewDeviceFound(device);
 
                 if (device.getBondState() == BluetoothDevice.BOND_NONE) {
                     mNewList.add(device);
@@ -184,12 +200,12 @@ public class BtHelperClient {
      * If the local device did't connected to the remote devices, it will call connectDevice(), then send the message.
      * If you want to get a response from the remote device, call another overload method, this method default will not obtain a response.
      *
-     * @param mac      the remote device's mac address
+//     * @param mac      the remote device's mac address
      * @param item     the message need to send
      * @param listener lister for the sending process
      */
-    public void sendMessage(String mac, MessageItem item, OnSendMessageListener listener) {
-        sendMessage(mac, item, false, listener);
+    public void sendMessage(MessageItem item, OnSendMessageListener listener) {
+        sendMessage(item, false, listener);
     }
 
 
@@ -199,18 +215,25 @@ public class BtHelperClient {
      * You can obtain a response from the remote device, just as http.
      * However, it will blocked if didn't get response from the remote device.
      *
-     * @param mac          the remote device's mac address
+//     * @param mac          the remote device's mac address
      * @param item         the message need to send
      * @param listener     lister for the sending process
      * @param needResponse if need to obtain a response from the remote device
      */
-    public void sendMessage(String mac, MessageItem item, boolean needResponse, OnSendMessageListener listener) {
+    public void sendMessage(MessageItem item, boolean needResponse, OnSendMessageListener listener) {
         // if not connected
-        if (mCurrStatus != STATUS.CONNECTED)
-            connectDevice(mac, listener);
-        mMessageQueue.add(item);
-        WriteRunnable writeRunnable = new WriteRunnable(listener, needResponse);
-        mExecutorService.submit(writeRunnable);
+//        if (mCurrStatus != STATUS.CONNECTED)
+//            connectDevice(mac, listener);
+//        mMessageQueue.add(item);
+//        WriteRunnable writeRunnable = new WriteRunnable(listener, needResponse);
+//        mExecutorService.submit(writeRunnable);
+
+        //Before Send a message to a remote device. you must be CONNECTED
+        if( mCurrStatus == STATUS.CONNECTED){
+            mMessageQueue.add(item);
+            WriteRunnable writeRunnable = new WriteRunnable(listener, needResponse);
+            mExecutorService.submit(writeRunnable);
+        }
     }
 
 
@@ -507,7 +530,13 @@ public class BtHelperClient {
     }
 
 
-    private void connectDevice(String mac, IErrorListener listener) {
+    /**
+     * 如果你想和其他蓝牙设备进行通信，你必须先调用此方法
+     * @param mac device address
+     * @param listener connection listener
+     */
+    public void connectDevice(String mac, IConnectionListener listener) {
+
         if (mac == null || TextUtils.isEmpty(mac))
             throw new IllegalArgumentException("mac address is null or empty!");
         if (!BluetoothAdapter.checkBluetoothAddress(mac))
@@ -523,9 +552,24 @@ public class BtHelperClient {
 
     private class ConnectDeviceRunnable implements Runnable {
         private String mac;
-        private IErrorListener listener;
+        private IConnectionListener listener;
+        private Handler mHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what) {
+                    case HANDLER_WHAT_CONNECTION_START:
+                        listener.OnConnectionStart();
+                        break;
+                    case HANDLER_WHAT_CONNECTION_SUCCESS:
+                        listener.OnConnectionSuccess();
+                        break;
+                    default:break;
+                }
+            }
+        };
 
-        public ConnectDeviceRunnable(String mac, IErrorListener listener) {
+        private ConnectDeviceRunnable(String mac, IConnectionListener listener) {
             this.mac = mac;
             this.listener = listener;
         }
@@ -534,21 +578,19 @@ public class BtHelperClient {
         public void run() {
             // always return a remote device
             BluetoothDevice remoteDevice = mBluetoothAdapter.getRemoteDevice(mac);
-            mBluetoothAdapter.cancelDiscovery();
+//            mBluetoothAdapter.cancelDiscovery();
             mCurrStatus = STATUS.FREE;
             try {
-                Log.d(TAG, "prepare to connect: " + remoteDevice.getAddress() + " " + remoteDevice.getName());
-//                BluetoothSocket socket =  remoteDevice.createRfcommSocketToServiceRecord(UUID.fromString(STR_UUID));
-//                BluetoothSocket socket =  (BluetoothSocket) remoteDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(remoteDevice,1);
+                mHandler.sendEmptyMessage(HANDLER_WHAT_CONNECTION_START);
+                Log.d("TAG", "prepare to connect: " + remoteDevice.getAddress() + " " + remoteDevice.getName());
                 mSocket = remoteDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString(Constants.STR_UUID));
-//                if(!socket.isConnected())
                 mSocket.connect();
                 mInputStream = mSocket.getInputStream();
                 mOutputStream = mSocket.getOutputStream();
                 mCurrStatus = STATUS.CONNECTED;
             } catch (Exception e) {
                 if (listener != null)
-                    listener.onError(e);
+                    listener.OnConnectionFailed(e);
                 try {
                     mInputStream.close();
                     mOutputStream.close();
@@ -557,6 +599,7 @@ public class BtHelperClient {
                 }
                 mCurrStatus = STATUS.FREE;
             }
+            mHandler.sendEmptyMessage(HANDLER_WHAT_CONNECTION_SUCCESS);
         }
     }
 
