@@ -6,6 +6,6 @@
     <string name="action_setting">设置</string>
     <string name="action_send">发送数据</string>
     <string name="action_send_data">请输入待发送的数据</string>
-    <string name="action_scan">扫描</string>
+    <string name="action_scan">搜索设备</string>
 
 </resources>

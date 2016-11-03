@@ -52,7 +52,6 @@ public class BtAdapter extends RecyclerView.Adapter{
         }else if(position == 1+bondedNum){
             ((BaseViewHolder)holder).bindData();
         }else {
-            Log.d("TAG", "onBind Pos : " + position);
             ((DeviceViewHolder)holder).bindData(devices.get(position));
         }
 
@@ -77,7 +76,7 @@ public class BtAdapter extends RecyclerView.Adapter{
     }
 
     public void setDevices(ArrayList<Device> devices) {
-        this.devices.addAll(devices);
+        this.devices = devices;
     }
 
     public ArrayList<Device> getDevices() {
@@ -86,6 +85,10 @@ public class BtAdapter extends RecyclerView.Adapter{
 
     public void setBondedNum(int bondedNum) {
         this.bondedNum = bondedNum;
+    }
+
+    public int getBondedNum() {
+        return bondedNum;
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {

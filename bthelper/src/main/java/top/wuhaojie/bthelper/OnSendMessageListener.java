@@ -13,5 +13,7 @@ public interface OnSendMessageListener extends IErrorListener, IConnectionLostLi
      *                 -1 respect the response is invalid
      * @param response the response from the remote device
      */
-    void onSuccess(int status, String response);
+//    void onSuccess(int status, String response);
+
+    void onSuccess(String s);
 }

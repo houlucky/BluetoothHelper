@@ -39,7 +39,7 @@ import top.wuhaojie.bthelper.OnReceiveMessageListener;
             try {
                 while (stream.available() == 0) ;
             } catch (IOException e) {
-                mListener.onConnectionLost(e);
+                mListener.onConnectionLost();
                 break;
             }
 
@@ -49,7 +49,7 @@ import top.wuhaojie.bthelper.OnReceiveMessageListener;
                     String s = reader.readLine();
                     mListener.onNewLine(s);
                 } catch (IOException e) {
-                    mListener.onConnectionLost(e);
+                    mListener.onConnectionLost();
                     break;
                 }
 

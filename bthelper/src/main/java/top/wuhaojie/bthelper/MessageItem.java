@@ -1,27 +1,36 @@
 package top.wuhaojie.bthelper;
 
+import top.wuhaojie.bthelper.util.Utils;
+
 /**
  * Created by wuhaojie on 2016/9/10 20:23.
  */
 public class MessageItem {
 
-    enum TYPE {
-        STRING,
-        CHAR
-    }
+//    public enum TYPE {
+//        STRING,
+//        CHAR
+//    }
 
-    String text;
-    char[] data;
+//    public String text;
+//    public char[] data;
 
-    TYPE mTYPE;
+//    public TYPE mTYPE;
+    private String data;
 
     public MessageItem(String text) {
-        this.text = text;
-        mTYPE = TYPE.STRING;
+//        this.text = text;
+//        mTYPE = TYPE.STRING;
+        data = text;
     }
 
-    public MessageItem(char[] data) {
-        this.data = data;
-        mTYPE = TYPE.CHAR;
+    public MessageItem(char[] text) {
+//        this.data = data;
+//        mTYPE = TYPE.CHAR;
+        data = new String(text);
+    }
+
+    public String getData() {
+        return data;
     }
 }

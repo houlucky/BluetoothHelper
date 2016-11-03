@@ -32,7 +32,7 @@ import top.wuhaojie.bthelper.OnReceiveMessageListener;
         }
 
         @Override
-        public void onConnectionLost(Exception e) {
+        public void onConnectionLost() {
 
         }
 
