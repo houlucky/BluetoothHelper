@@ -1,6 +1,5 @@
 package com.houxy.bluetoothcontrol.ui;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -11,16 +10,20 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.houxy.bluetoothcontrol.C;
 import com.houxy.bluetoothcontrol.R;
 import com.houxy.bluetoothcontrol.adapter.ChatAdapter;
 import com.houxy.bluetoothcontrol.bean.DataItem;
-import com.houxy.bluetoothcontrol.bean.MessageModel;
-import com.houxy.bluetoothcontrol.receiver.MessageReceiver;
+
+import top.wuhaojie.bthelper.BroadcastType;
+import top.wuhaojie.bthelper.receiver.BtConnectionLostReceiver;
+import top.wuhaojie.bthelper.receiver.MessageReceiver;
 import com.houxy.bluetoothcontrol.utils.DensityUtil;
 import com.houxy.bluetoothcontrol.utils.RecyclerViewUtil;
 
@@ -47,9 +50,11 @@ public class ChatActivity extends AppCompatActivity {
     @Bind(R.id.sendDataBt)
     Button sendDataBt;
     private MessageReceiver mMessageReceiver;
+    private BtConnectionLostReceiver mBtConnectionLostReceiver;
     private ArrayList<DataItem> dataItems;
     private ChatAdapter mChatAdapter;
     private String deviceName;
+    private LinearLayoutManager mLayoutManager;
 
     public static Intent getIntentStartActivity(Context context, String deviceName){
         Intent intent = new Intent(context, ChatActivity.class);
@@ -64,6 +69,35 @@ public class ChatActivity extends AppCompatActivity {
         deviceName = getIntent().getStringExtra("DEVICE_NAME");
         ButterKnife.bind(this);
         initView();
+        initReceiver();
+    }
+
+    private void initReceiver() {
+
+        mMessageReceiver = new MessageReceiver() {
+            @Override
+            protected void OnReceiveMessage(String message) {
+                Log.d("TAG", "RECE : " + message);
+                DataItem<String> dataItem = new DataItem<>();
+                dataItem.setData(deviceName + " : " + message);
+                dataItem.setType(C.MESSAGE_TYPE_RECEIVE_TXT);
+                dataItems.add(dataItem);
+                mChatAdapter.notifyItemInserted(dataItems.size()-1);
+                scrollToBottom();
+            }
+        };
+
+        registerReceiver(mMessageReceiver, new IntentFilter(BroadcastType.BROADCAST_TYPE_RECEIVED_MESSAGE));
+
+        mBtConnectionLostReceiver = new BtConnectionLostReceiver() {
+            @Override
+            public void OnConnectionLost() {
+                sendDataBt.setEnabled(false);
+                Toast.makeText(ChatActivity.this, "连接中断,请重新连接...zzZ", Toast.LENGTH_SHORT).show();
+            }
+        };
+        registerReceiver(mBtConnectionLostReceiver, new IntentFilter(BroadcastType.BROADCAST_TYPE_CONNECTION_LOST));
+
     }
 
     private void initView() {
@@ -76,7 +110,18 @@ public class ChatActivity extends AppCompatActivity {
         dataItems = new ArrayList<>();
         mChatAdapter = new ChatAdapter(dataItems);
         recyclerView.setAdapter(mChatAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.addItemDecoration(new RecyclerViewUtil.SpaceItemDecoration(DensityUtil.dip2px(this, 10)));
+        dataEt.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
+                    scrollToBottom();
+                }
+                return false;
+            }
+        });
 
         sendDataBt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,6 +136,7 @@ public class ChatActivity extends AppCompatActivity {
                             dataItem.setType(C.MESSAGE_TYPE_SEND_TXT);
                             dataItems.add(dataItem);
                             mChatAdapter.notifyItemInserted(dataItems.size()-1);
+                            scrollToBottom();
                         }
 
                         @Override
@@ -107,20 +153,11 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        mMessageReceiver = new MessageReceiver() {
-            @Override
-            protected void OnReceiveMessage(String message) {
-                Log.d("TAG", "RECE : " + message);
-                DataItem<String> dataItem = new DataItem<>();
-                dataItem.setData(deviceName + " : " + message);
-                dataItem.setType(C.MESSAGE_TYPE_RECEIVE_TXT);
-                dataItems.add(dataItem);
-                mChatAdapter.notifyItemInserted(dataItems.size()-1);
-            }
-        };
 
-        IntentFilter intentFilter = new IntentFilter("com.houxy.action.MESSAGE");
-        registerReceiver(mMessageReceiver, intentFilter);
+    }
+
+    private void scrollToBottom() {
+        mLayoutManager.scrollToPositionWithOffset(mChatAdapter.getItemCount() - 1, 0);
     }
 
     @Override

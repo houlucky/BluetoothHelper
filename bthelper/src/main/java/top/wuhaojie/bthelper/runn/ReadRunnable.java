@@ -21,6 +21,7 @@ import top.wuhaojie.bthelper.OnReceiveMessageListener;
 public class ReadRunnable implements Runnable {
 
     private static final int HANDLER_WHAT_NEW_MSG=1;
+    private static final int HANDLER_CONNECTION_INTERRUPTED=2;
     private OnReceiveMessageListener mListener;
     private InputStream mInputStream;
 
@@ -49,24 +50,19 @@ public class ReadRunnable implements Runnable {
             boolean runFlag = true;
             int n;
             byte[] buffer = new byte[32];
-            StringBuilder stringBuilder = new StringBuilder();
             while (runFlag){
                 //TODO ???
 //                DataInputStream dataInputStream = new DataInputStream(mInputStream);
                 try {
                     n = mInputStream.read(buffer);
                     String s = new String(buffer, 0, n);
-                    stringBuilder.append(s);
                     mListener.onNewLine(s);
                 } catch (IOException e) {
                     e.printStackTrace();
                     runFlag = false;
+                    mListener.onConnectionLost();
                 }
             }
         }
-
-        Log.d("TAG", "mInputStream == NULL");
     }
-
-
 }

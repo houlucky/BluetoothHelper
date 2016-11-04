@@ -4,7 +4,7 @@ package top.wuhaojie.bthelper;
  * Listener for send message process.
  * Created by wuhaojie on 2016/9/10 20:17.
  */
-public interface OnSendMessageListener extends IErrorListener, IConnectionLostListener {
+public interface OnSendMessageListener extends IErrorListener, OnConnectionLostListener {
     /**
      * Call when send a message succeed, and get a response from the remote device.
      *

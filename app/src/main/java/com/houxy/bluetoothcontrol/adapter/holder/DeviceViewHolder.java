@@ -7,6 +7,7 @@ import android.widget.TextView;
 import com.houxy.bluetoothcontrol.R;
 import com.houxy.bluetoothcontrol.base.BaseViewHolder;
 import com.houxy.bluetoothcontrol.base.i.OnItemClickListener;
+import com.houxy.bluetoothcontrol.bean.DataItem;
 import com.houxy.bluetoothcontrol.bean.Device;
 
 import butterknife.Bind;
@@ -15,7 +16,7 @@ import butterknife.Bind;
  * Created by Houxy on 2016/10/31.
  */
 
-public class DeviceViewHolder extends BaseViewHolder {
+public class DeviceViewHolder extends BaseViewHolder<DataItem<Device>> {
 
     @Bind(R.id.deviceName)
     TextView deviceName;
@@ -29,8 +30,8 @@ public class DeviceViewHolder extends BaseViewHolder {
     }
 
     @Override
-    public void bindData(Object o) {
-        Device device = (Device) o;
+    public void bindData(DataItem<Device> deviceDataItem) {
+        Device device = deviceDataItem.getData();
         deviceAddress.setText(device.getDeviceAddress());
         deviceName.setText(device.getDeviceName());
         if( device.getDeviceState() ){

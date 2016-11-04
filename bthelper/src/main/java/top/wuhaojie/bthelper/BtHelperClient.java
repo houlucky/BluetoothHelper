@@ -33,7 +33,6 @@ public class BtHelperClient {
     private ConnectDeviceRunnable mConnectDeviceRunnable;
     private BluetoothAdapter mBluetoothAdapter;
     private volatile BtReceiver mReceiver;
-    private BtStateReceiver mBtStateReceiver;
     private static volatile BtHelperClient sBtHelperClient;
     private ExecutorService mExecutorService = Executors.newCachedThreadPool();
 
@@ -62,22 +61,6 @@ public class BtHelperClient {
 
         return sBtHelperClient;
     }
-
-//    /**
-//     * Obtains the BtHelperClient from the given context.
-//     *
-//     * @param context context
-//     * @return an instance of BtHelperClient
-//     */
-//    public static BtHelperClient from(Context context) {
-//        if (sBtHelperClient == null) {
-//            synchronized (BtHelperClient.class) {
-//                if (sBtHelperClient == null)
-//                    sBtHelperClient = new BtHelperClient(context);
-//            }
-//        }
-//        return sBtHelperClient;
-//    }
 
     /**
      * private constructor for singleton
@@ -150,52 +133,28 @@ public class BtHelperClient {
      * If the local device did't connected to the remote devices, it will call connectDevice(), then send the message.
      * If you want to get a response from the remote device, call another overload method, this method default will not obtain a response.
      *
-//     * @param mac      the remote device's mac address
      * @param item     the message need to send
      * @param listener lister for the sending process
      */
     public void sendMessage(MessageItem item, OnSendMessageListener listener) {
-        sendMessage(item, false, listener);
+        WriteRunnable writeRunnable = new WriteRunnable(item,listener,mConnectDeviceRunnable.getOutputStream());
+        mExecutorService.submit(writeRunnable);
     }
-
-
-    /**
-     * Send a message to a remote device.
-     * If the local device did't connected to the remote devices, it will call connectDevice(), then send the message.
-     * You can obtain a response from the remote device, just as http.
-     * However, it will blocked if didn't get response from the remote device.
-     *
-//     * @param mac          the remote device's mac address
-     * @param item         the message need to send
-     * @param listener     lister for the sending process
-     * @param needResponse if need to obtain a response from the remote device
-     */
-    public void sendMessage(MessageItem item, boolean needResponse, OnSendMessageListener listener) {
-
-        //Before Send a message to a remote device. you must be CONNECTED
-//        if( mCurrStatus == STATUS.CONNECTED){
-//            mMessageQueue.add(item);
-            WriteRunnable writeRunnable = new WriteRunnable(item,listener, needResponse,mConnectDeviceRunnable.getOutputStream());
-            mExecutorService.submit(writeRunnable);
-
-//        }
-    }
-
-
 
     private void receiveMessage() {
 
         OnReceiveMessageListener onReceiveMessageListener = new OnReceiveMessageListener() {
             @Override
             public void onNewLine(String s) {
-                Intent intent = new Intent("com.houxy.action.MESSAGE");
+                Intent intent = new Intent(BroadcastType.BROADCAST_TYPE_RECEIVED_MESSAGE);
                 intent.putExtra("message", s);
                 mContext.sendBroadcast(intent);
             }
 
             @Override
             public void onConnectionLost() {
-
+                Intent intent = new Intent(BroadcastType.BROADCAST_TYPE_CONNECTION_LOST);
+                mContext.sendBroadcast(intent);
             }
 
             @Override
@@ -206,7 +165,6 @@ public class BtHelperClient {
         ReadRunnable readRunnable = new ReadRunnable(onReceiveMessageListener, mConnectDeviceRunnable.getInputStream());
         mExecutorService.submit(readRunnable);
     }
-
 
     private Filter mFilter;
 
@@ -277,22 +235,6 @@ public class BtHelperClient {
         return bondedDevices;
     }
 
-    public void setOnBtStateChangeListener(final OnBtStateChangeListener onBtStateChangeListener){
-
-        mBtStateReceiver = new BtStateReceiver(new OnBtStateChangeListener() {
-            @Override
-            public void OnBtStateON() {
-                onBtStateChangeListener.OnBtStateON();
-            }
-
-            @Override
-            public void OnBtStateOFF() {
-                onBtStateChangeListener.OnBtStateOFF();
-            }
-        });
-        mContext.registerReceiver(mBtStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-    }
-
     /**
      * Closes the connection and releases any system resources associated
      * with the stream.
@@ -302,7 +244,6 @@ public class BtHelperClient {
             mBluetoothAdapter.cancelDiscovery();
 
         mContext.unregisterReceiver(mReceiver);
-        mContext.unregisterReceiver(mBtStateReceiver);
 
         if (mSocket != null) try {
             mSocket.close();

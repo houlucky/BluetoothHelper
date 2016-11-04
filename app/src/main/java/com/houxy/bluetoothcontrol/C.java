@@ -11,4 +11,11 @@ public class C {
     public static final int MESSAGE_TYPE_SEND_TXT=0;
     public static final int MESSAGE_TYPE_RECEIVE_TXT=1;
 
+    public static final int DATA_TYPE_DEVICE_BONDED=2;
+    public static final int DATA_TYPE_DEVICE_NEW=3;
+    public static final int DATA_TYPE_DEVICE_NEW_HEADER=4;
+    public static final int DATA_TYPE_DEVICE_BONDED_HEADER=5;
+
+
+
 }

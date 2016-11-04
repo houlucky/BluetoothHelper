@@ -13,10 +13,14 @@ import top.wuhaojie.bthelper.OnBtStateChangeListener;
 
 public class BtStateReceiver extends BroadcastReceiver{
 
-    private OnBtStateChangeListener mOnBtStateListener;
 
-    public BtStateReceiver(OnBtStateChangeListener onBtStateListener){
-        mOnBtStateListener = onBtStateListener;
+    public  void OnBtStateOFF(){}
+    public  void OnBtStateTurningOFF(){}
+    public  void OnBtStateON(){}
+    public  void OnBtStateTurningON(){}
+
+
+    public BtStateReceiver(){
     }
 
     @Override
@@ -26,10 +30,16 @@ public class BtStateReceiver extends BroadcastReceiver{
             int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
             switch (blueState){
                 case BluetoothAdapter.STATE_OFF:
-                    mOnBtStateListener.OnBtStateOFF();
+                    OnBtStateOFF();
                     break;
                 case BluetoothAdapter.STATE_ON:
-                    mOnBtStateListener.OnBtStateON();
+                    OnBtStateON();
+                    break;
+                case BluetoothAdapter.STATE_TURNING_OFF:
+                    OnBtStateTurningOFF();
+                    break;
+                case BluetoothAdapter.STATE_TURNING_ON:
+                    OnBtStateTurningON();
                     break;
                 default:break;
             }

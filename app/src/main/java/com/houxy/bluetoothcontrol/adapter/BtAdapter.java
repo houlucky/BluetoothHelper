@@ -4,11 +4,13 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import com.houxy.bluetoothcontrol.C;
 import com.houxy.bluetoothcontrol.adapter.holder.BondedViewHolder;
 import com.houxy.bluetoothcontrol.adapter.holder.DeviceViewHolder;
 import com.houxy.bluetoothcontrol.adapter.holder.NewViewHolder;
 import com.houxy.bluetoothcontrol.base.BaseViewHolder;
 import com.houxy.bluetoothcontrol.base.i.OnItemClickListener;
+import com.houxy.bluetoothcontrol.bean.DataItem;
 import com.houxy.bluetoothcontrol.bean.Device;
 
 import java.util.ArrayList;
@@ -17,78 +19,53 @@ import java.util.ArrayList;
  * Created by Houxy on 2016/10/31.
  */
 
-public class BtAdapter extends RecyclerView.Adapter{
+public class BtAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
-    private ArrayList<Device> devices;
-    private static final int BONDED = 0;
-    private static final int NEW = 1;
-    private static final int DEVICE = 2;
-    private int bondedNum;
+    private ArrayList<DataItem> dataItems;
     private OnItemClickListener onItemClickListener;
 
-    public BtAdapter(){
-        devices = new ArrayList<>();
+    public BtAdapter(ArrayList<DataItem> dataItems){
+        this.dataItems = dataItems;
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        if(viewType == BONDED){
+        if(viewType == C.DATA_TYPE_DEVICE_BONDED_HEADER){
             return new BondedViewHolder(parent);
-        }else if(viewType == NEW){
+        }else if(viewType == C.DATA_TYPE_DEVICE_NEW_HEADER){
             return new NewViewHolder(parent);
-        }else if(viewType == DEVICE){
+        }else if(viewType == C.DATA_TYPE_DEVICE_NEW || viewType == C.DATA_TYPE_DEVICE_BONDED){
             return new DeviceViewHolder(parent, onItemClickListener);
         }
-
         return null;
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(BaseViewHolder holder, int position) {
 
-        if(position == 0){
-            ((BaseViewHolder)holder).bindData();
-        }else if(position == 1+bondedNum){
-            ((BaseViewHolder)holder).bindData();
-        }else {
-            ((DeviceViewHolder)holder).bindData(devices.get(position));
+        switch (dataItems.get(position).getType()){
+            case C.DATA_TYPE_DEVICE_BONDED:
+            case C.DATA_TYPE_DEVICE_NEW:
+                ((DeviceViewHolder)holder).bindData(dataItems.get(position));
+                break;
+            case C.DATA_TYPE_DEVICE_BONDED_HEADER:
+                break;
+            case C.DATA_TYPE_DEVICE_NEW_HEADER:
+                break;
+            default:break;
         }
 
     }
 
     @Override
     public int getItemCount() {
-        return devices.size();
+        return dataItems.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        if(position == 0){
-            return BONDED;
-        }
-
-        if(position == 1+bondedNum){
-            return NEW;
-        }
-
-        return DEVICE;
-    }
-
-    public void setDevices(ArrayList<Device> devices) {
-        this.devices = devices;
-    }
-
-    public ArrayList<Device> getDevices() {
-        return devices;
-    }
-
-    public void setBondedNum(int bondedNum) {
-        this.bondedNum = bondedNum;
-    }
-
-    public int getBondedNum() {
-        return bondedNum;
+        return dataItems.get(position).getType();
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {

@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
         app:popupTheme="@style/OverflowMenuStyle"
+        app:contentInsetStart="0dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         >
 
@@ -22,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar"
         android:layout_above="@+id/ll"
+        android:layout_marginTop="10dp"
         >
 
     </android.support.v7.widget.RecyclerView>
@@ -40,7 +42,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:hint="@string/action_send_data"
-            android:textSize="12sp"
+            android:textSize="16sp"
             />
 
         <Button
@@ -48,6 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/action_send"
+            android:textColor="#ffffff"
             />
 
     </LinearLayout>
