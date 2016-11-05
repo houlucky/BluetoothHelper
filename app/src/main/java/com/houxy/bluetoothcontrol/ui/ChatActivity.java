@@ -3,6 +3,7 @@ package com.houxy.bluetoothcontrol.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -21,7 +23,7 @@ import com.houxy.bluetoothcontrol.R;
 import com.houxy.bluetoothcontrol.adapter.ChatAdapter;
 import com.houxy.bluetoothcontrol.bean.DataItem;
 
-import top.wuhaojie.bthelper.BroadcastType;
+import top.wuhaojie.bthelper.receiver.BroadcastType;
 import top.wuhaojie.bthelper.receiver.BtConnectionLostReceiver;
 import top.wuhaojie.bthelper.receiver.MessageReceiver;
 import com.houxy.bluetoothcontrol.utils.DensityUtil;
@@ -32,8 +34,8 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import top.wuhaojie.bthelper.BtHelperClient;
-import top.wuhaojie.bthelper.MessageItem;
-import top.wuhaojie.bthelper.OnSendMessageListener;
+import top.wuhaojie.bthelper.bean.MessageItem;
+import top.wuhaojie.bthelper.i.OnSendMessageListener;
 
 /**
  * Created by Houxy on 2016/11/2.
@@ -54,11 +56,13 @@ public class ChatActivity extends AppCompatActivity {
     private ArrayList<DataItem> dataItems;
     private ChatAdapter mChatAdapter;
     private String deviceName;
+    private int connectType;
     private LinearLayoutManager mLayoutManager;
 
-    public static Intent getIntentStartActivity(Context context, String deviceName){
+    public static Intent getIntentStartActivity(Context context, String deviceName, int type){
         Intent intent = new Intent(context, ChatActivity.class);
         intent.putExtra("DEVICE_NAME", deviceName);
+        intent.putExtra("CONNECT_TYPE", type);
         return intent;
     }
 
@@ -77,7 +81,6 @@ public class ChatActivity extends AppCompatActivity {
         mMessageReceiver = new MessageReceiver() {
             @Override
             protected void OnReceiveMessage(String message) {
-                Log.d("TAG", "RECE : " + message);
                 DataItem<String> dataItem = new DataItem<>();
                 dataItem.setData(deviceName + " : " + message);
                 dataItem.setType(C.MESSAGE_TYPE_RECEIVE_TXT);
@@ -93,6 +96,8 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void OnConnectionLost() {
                 sendDataBt.setEnabled(false);
+                sendDataBt.setTextColor(Color.GRAY);
+                sendDataBt.setText("连接断开");
                 Toast.makeText(ChatActivity.this, "连接中断,请重新连接...zzZ", Toast.LENGTH_SHORT).show();
             }
         };
@@ -137,11 +142,12 @@ public class ChatActivity extends AppCompatActivity {
                             dataItems.add(dataItem);
                             mChatAdapter.notifyItemInserted(dataItems.size()-1);
                             scrollToBottom();
+                            dataEt.setText("");
                         }
 
                         @Override
                         public void onConnectionLost() {
-
+                            //在这里监听的连接中断的话要尝试发送一次消息才能监听到
                         }
 
                         @Override
@@ -156,6 +162,15 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if( item.getItemId() == android.R.id.home){
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void scrollToBottom() {
         mLayoutManager.scrollToPositionWithOffset(mChatAdapter.getItemCount() - 1, 0);
     }
@@ -164,5 +179,6 @@ public class ChatActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mMessageReceiver);
+        unregisterReceiver(mBtConnectionLostReceiver);
     }
 }

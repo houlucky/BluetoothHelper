@@ -3,16 +3,11 @@ package top.wuhaojie.bthelper.runn;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
-import top.wuhaojie.bthelper.BtHelperClient;
-import top.wuhaojie.bthelper.OnReceiveMessageListener;
+import top.wuhaojie.bthelper.i.OnReceiveMessageListener;
 
 /**
  * Created by Houxy on 2016/11/2.
@@ -49,7 +44,7 @@ public class ReadRunnable implements Runnable {
 
             boolean runFlag = true;
             int n;
-            byte[] buffer = new byte[32];
+            byte[] buffer = new byte[256];
             while (runFlag){
                 //TODO ???
 //                DataInputStream dataInputStream = new DataInputStream(mInputStream);

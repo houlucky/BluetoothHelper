@@ -9,13 +9,9 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import top.wuhaojie.bthelper.BtHelperClient;
-import top.wuhaojie.bthelper.Constants;
-import top.wuhaojie.bthelper.MessageItem;
-import top.wuhaojie.bthelper.OnSendMessageListener;
+import top.wuhaojie.bthelper.bean.MessageItem;
+import top.wuhaojie.bthelper.i.OnSendMessageListener;
 
 /**
  * Created by Houxy on 2016/11/2.

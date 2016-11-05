@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="15dp"
     android:background="#f5f5f5"
     >
 
     <TextView
+        android:id="@+id/headerName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/new_device"
         />
 
-</LinearLayout>
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_alignParentEnd="true"
+        android:visibility="visible"
+        />
+
+</RelativeLayout>

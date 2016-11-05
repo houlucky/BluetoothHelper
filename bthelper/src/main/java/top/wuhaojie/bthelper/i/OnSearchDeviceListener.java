@@ -1,8 +1,10 @@
-package top.wuhaojie.bthelper;
+package top.wuhaojie.bthelper.i;
 
 import android.bluetooth.BluetoothDevice;
 
 import java.util.List;
+
+import top.wuhaojie.bthelper.i.IErrorListener;
 
 /**
  * A listener for searching devices.

@@ -8,16 +8,13 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import java.io.BufferedWriter;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.UUID;
 import top.wuhaojie.bthelper.Constants;
-import top.wuhaojie.bthelper.IConnectionListener;
-import top.wuhaojie.bthelper.OnReceiveMessageListener;
+import top.wuhaojie.bthelper.i.IConnectionListener;
+import top.wuhaojie.bthelper.i.OnReceiveMessageListener;
 
 /**
  * Created by Houxy on 2016/11/2.

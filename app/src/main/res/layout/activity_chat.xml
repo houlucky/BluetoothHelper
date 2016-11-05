@@ -17,30 +17,21 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar"
-        android:layout_above="@+id/ll"
-        android:layout_marginTop="10dp"
-        >
-
-    </android.support.v7.widget.RecyclerView>
-
     <LinearLayout
         android:id="@+id/ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:background="#f5f5f5"
         android:layout_alignParentBottom="true"
-        >
+        android:layout_alignParentStart="true">
 
         <EditText
             android:id="@+id/dataEt"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:hint="@string/action_send_data"
             android:textSize="16sp"
             />
@@ -50,9 +41,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/action_send"
-            android:textColor="#ffffff"
+            android:layout_gravity="bottom"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/btn_bg_selector"
             />
 
     </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ll"
+        android:layout_below="@+id/toolbar"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="5dp"
+        >
+
+    </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

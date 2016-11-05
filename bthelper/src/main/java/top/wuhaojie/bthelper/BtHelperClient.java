@@ -13,8 +13,16 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import top.wuhaojie.bthelper.bean.MessageItem;
+import top.wuhaojie.bthelper.i.IConnectionListener;
+import top.wuhaojie.bthelper.i.OnAcceptListener;
+import top.wuhaojie.bthelper.i.OnReceiveMessageListener;
+import top.wuhaojie.bthelper.i.OnSearchDeviceListener;
+import top.wuhaojie.bthelper.i.OnSendMessageListener;
+import top.wuhaojie.bthelper.receiver.BroadcastType;
 import top.wuhaojie.bthelper.receiver.BtReceiver;
-import top.wuhaojie.bthelper.receiver.BtStateReceiver;
+import top.wuhaojie.bthelper.runn.AcceptRunnable;
 import top.wuhaojie.bthelper.runn.ConnectDeviceRunnable;
 import top.wuhaojie.bthelper.runn.ReadRunnable;
 import top.wuhaojie.bthelper.runn.WriteRunnable;
@@ -31,10 +39,12 @@ public class BtHelperClient {
     private Context mContext;
     private BluetoothSocket mSocket;
     private ConnectDeviceRunnable mConnectDeviceRunnable;
+    private AcceptRunnable mAcceptRunnable;
     private BluetoothAdapter mBluetoothAdapter;
     private volatile BtReceiver mReceiver;
     private static volatile BtHelperClient sBtHelperClient;
     private ExecutorService mExecutorService = Executors.newCachedThreadPool();
+    private static int type = Constants.CONNECT_TYPE_SERVER;
 
 //    private InputStream mAcceptInputStream;
 //    private OutputStream mAcceptOutputStream;
@@ -43,7 +53,6 @@ public class BtHelperClient {
      * Obtains the BtHelperClient from the given context.
      *
      * @param context context
-     * @return an instance of BtHelperClient
      */
     public static void init(Context context) {
         if (sBtHelperClient == null) {
@@ -71,6 +80,29 @@ public class BtHelperClient {
         mContext = context.getApplicationContext();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         requestEnableBt();
+        initAcceptRunn();
+    }
+
+    private void initAcceptRunn() {
+
+        OnAcceptListener onAcceptListener = new OnAcceptListener() {
+
+            @Override
+            public void OnAcceptSuccess(BluetoothDevice device) {
+                Intent intent = new Intent(BroadcastType.BROADCAST_TYPE_ACCEPT_CONNECTION);
+                intent.putExtra(Constants.REMOTE_DEVICE, device);
+                mContext.sendBroadcast(intent);
+                receiveMessage();
+            }
+
+            @Override
+            public void OnAcceptFailed(Exception e) {
+
+            }
+        };
+
+        mAcceptRunnable = new AcceptRunnable(onAcceptListener);
+        mExecutorService.submit(mAcceptRunnable);
     }
 
 
@@ -92,7 +124,7 @@ public class BtHelperClient {
      *
      * @param listener listener for the process
      */
-    public void searchDevices(OnSearchDeviceListener listener) {
+    public void searchDevices(final OnSearchDeviceListener listener) {
 
         checkNotNull(listener);
 
@@ -100,6 +132,8 @@ public class BtHelperClient {
             listener.onError(new NullPointerException(DEVICE_HAS_NOT_BLUETOOTH_MODULE));
             return;
         }
+
+
 
         if (mReceiver == null){
             mReceiver = new BtReceiver(listener);
@@ -113,11 +147,6 @@ public class BtHelperClient {
         filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         mContext.registerReceiver(mReceiver, filter);
 
-//        mNeed2unRegister = true;
-//        if(!mBluetoothAdapter.isEnabled()){
-//            mBluetoothAdapter.enable();
-//        }
-
         if (mBluetoothAdapter.isDiscovering())
             mBluetoothAdapter.cancelDiscovery();
 
@@ -125,7 +154,9 @@ public class BtHelperClient {
         listener.onStartDiscovery();
     }
 
+    public void searchDevices(){
 
+    }
 
 
     /**
@@ -137,8 +168,17 @@ public class BtHelperClient {
      * @param listener lister for the sending process
      */
     public void sendMessage(MessageItem item, OnSendMessageListener listener) {
-        WriteRunnable writeRunnable = new WriteRunnable(item,listener,mConnectDeviceRunnable.getOutputStream());
-        mExecutorService.submit(writeRunnable);
+//        WriteRunnable writeRunnable = new WriteRunnable(item,listener,mConnectDeviceRunnable.getOutputStream());
+//        mExecutorService.submit(writeRunnable);
+
+        WriteRunnable writeRunnable;
+        if( type == Constants.CONNECT_TYPE_CLIENT ){
+            writeRunnable = new WriteRunnable(item,listener,mConnectDeviceRunnable.getOutputStream());
+            mExecutorService.submit(writeRunnable);
+        }else if( type == Constants.CONNECT_TYPE_SERVER){
+            writeRunnable = new WriteRunnable(item,listener,mAcceptRunnable.getOutputStream());
+            mExecutorService.submit(writeRunnable);
+        }
     }
 
     private void receiveMessage() {
@@ -162,24 +202,20 @@ public class BtHelperClient {
 
             }
         };
-        ReadRunnable readRunnable = new ReadRunnable(onReceiveMessageListener, mConnectDeviceRunnable.getInputStream());
-        mExecutorService.submit(readRunnable);
+
+//        ReadRunnable readRunnable = new ReadRunnable(onReceiveMessageListener, mConnectDeviceRunnable.getInputStream());
+//        mExecutorService.submit(readRunnable);
+
+        ReadRunnable readRunnable;
+        if( type == Constants.CONNECT_TYPE_CLIENT){
+            readRunnable = new ReadRunnable(onReceiveMessageListener, mConnectDeviceRunnable.getInputStream());
+            mExecutorService.submit(readRunnable);
+        }else if( type == Constants.CONNECT_TYPE_SERVER){
+            readRunnable = new ReadRunnable(onReceiveMessageListener, mAcceptRunnable.getInputStream());
+            mExecutorService.submit(readRunnable);
+        }
+
     }
-
-    private Filter mFilter;
-
-    /**
-     * Set a filter use to check if a given response is an expect data.
-     * Throw a NullPointerException if the parameter is null.
-     *
-     * @param filter a custom filter
-     */
-    public void setFilter(Filter filter) {
-        if (filter == null)
-            throw new NullPointerException("parameter filter is null");
-        mFilter = filter;
-    }
-
 
     /**
      * 如果你想和其他蓝牙设备进行通信，你必须先调用此方法
@@ -187,6 +223,13 @@ public class BtHelperClient {
      * @param listener connection listener
      */
     public void connectDevice(String mac, final IConnectionListener listener) {
+
+        //主动连接 代表本机是主机
+        type = Constants.CONNECT_TYPE_CLIENT;
+
+        if( mBluetoothAdapter.isDiscovering()){
+            mBluetoothAdapter.cancelDiscovery();
+        }
 
         if (mac == null || TextUtils.isEmpty(mac))
             throw new IllegalArgumentException("mac address is null or empty!");

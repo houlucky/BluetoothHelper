@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import top.wuhaojie.bthelper.Constants;
-import top.wuhaojie.bthelper.OnReceiveMessageListener;
+import top.wuhaojie.bthelper.i.OnReceiveMessageListener;
 
 /**
  * Created by wuhaojie on 2016/10/18 13:57.
@@ -49,10 +49,11 @@ import top.wuhaojie.bthelper.OnReceiveMessageListener;
         private final BluetoothServerSocket mServerSocket;
 
 
-        public AcceptThread(BluetoothAdapter adapter) {
+        public AcceptThread() {
             BluetoothServerSocket temp = null;
             try {
-                temp = adapter.listenUsingRfcommWithServiceRecord("BT", UUID.fromString(Constants.STR_UUID));
+                temp = BluetoothAdapter.getDefaultAdapter()
+                        .listenUsingRfcommWithServiceRecord("BT", UUID.fromString(Constants.STR_UUID));
             } catch (IOException e) {
                 e.printStackTrace();
             }

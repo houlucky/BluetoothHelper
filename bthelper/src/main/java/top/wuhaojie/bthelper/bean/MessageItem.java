@@ -1,4 +1,4 @@
-package top.wuhaojie.bthelper;
+package top.wuhaojie.bthelper.bean;
 
 import top.wuhaojie.bthelper.util.Utils;
 

@@ -6,6 +6,9 @@ package top.wuhaojie.bthelper;
 
 public interface Constants {
     String STR_UUID = "00001101-0000-1000-8000-00805F9B34FB";
+    String REMOTE_DEVICE = "remote_device";
+    int CONNECT_TYPE_SERVER = 0;
+    int CONNECT_TYPE_CLIENT = 1;
     int STATUS_OK = 1;
     int STATUS_ERROR = -1;
 }

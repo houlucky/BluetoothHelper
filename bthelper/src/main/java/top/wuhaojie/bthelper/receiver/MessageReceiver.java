@@ -4,8 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import top.wuhaojie.bthelper.BroadcastType;
-
 /**
  * Created by Houxy on 2016/11/3.
  */

@@ -1,4 +1,7 @@
-package top.wuhaojie.bthelper;
+package top.wuhaojie.bthelper.i;
+
+import top.wuhaojie.bthelper.i.IErrorListener;
+import top.wuhaojie.bthelper.i.OnConnectionLostListener;
 
 /**
  * Listener for send message process.

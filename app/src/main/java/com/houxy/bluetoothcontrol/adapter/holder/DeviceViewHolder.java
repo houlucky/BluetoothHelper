@@ -16,7 +16,7 @@ import butterknife.Bind;
  * Created by Houxy on 2016/10/31.
  */
 
-public class DeviceViewHolder extends BaseViewHolder<DataItem<Device>> {
+public class DeviceViewHolder extends BaseViewHolder<Device> {
 
     @Bind(R.id.deviceName)
     TextView deviceName;
@@ -30,8 +30,7 @@ public class DeviceViewHolder extends BaseViewHolder<DataItem<Device>> {
     }
 
     @Override
-    public void bindData(DataItem<Device> deviceDataItem) {
-        Device device = deviceDataItem.getData();
+    public void bindData(Device device) {
         deviceAddress.setText(device.getDeviceAddress());
         deviceName.setText(device.getDeviceName());
         if( device.getDeviceState() ){
