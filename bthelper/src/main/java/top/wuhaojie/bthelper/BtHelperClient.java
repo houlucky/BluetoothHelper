@@ -34,20 +34,17 @@ import top.wuhaojie.bthelper.runn.WriteRunnable;
 public class BtHelperClient {
 
     private static final String DEVICE_HAS_NOT_BLUETOOTH_MODULE = "device has not bluetooth module!";
-    private static final String TAG = BtHelperClient.class.getSimpleName();
 
     private Context mContext;
-    private BluetoothSocket mSocket;
     private ConnectDeviceRunnable mConnectDeviceRunnable;
     private AcceptRunnable mAcceptRunnable;
     private BluetoothAdapter mBluetoothAdapter;
-    private volatile BtReceiver mReceiver;
-    private static volatile BtHelperClient sBtHelperClient;
+//    private volatile BtReceiver mReceiver;
+//    private static volatile BtHelperClient sBtHelperClient;
+    private BtReceiver mReceiver;
+    private static BtHelperClient sBtHelperClient;
     private ExecutorService mExecutorService = Executors.newCachedThreadPool();
     private static int type = Constants.CONNECT_TYPE_SERVER;
-
-//    private InputStream mAcceptInputStream;
-//    private OutputStream mAcceptOutputStream;
 
     /**
      * Obtains the BtHelperClient from the given context.
@@ -283,20 +280,18 @@ public class BtHelperClient {
      * with the stream.
      */
     public void close() {
-        if (mBluetoothAdapter != null)
+        if (mBluetoothAdapter.isDiscovering())
             mBluetoothAdapter.cancelDiscovery();
 
-        mContext.unregisterReceiver(mReceiver);
-
-        if (mSocket != null) try {
-            mSocket.close();
-        } catch (IOException e) {
-            mSocket = null;
+        if( null != mReceiver){
+            mContext.unregisterReceiver(mReceiver);
+            mReceiver = null;
         }
 
-        mReceiver = null;
-
-        sBtHelperClient = null;
+        //如果是服务端 ，就要重开一个线程，再次监听连接请求
+        if( type == Constants.CONNECT_TYPE_SERVER){
+            initAcceptRunn();
+        }
     }
 
 }

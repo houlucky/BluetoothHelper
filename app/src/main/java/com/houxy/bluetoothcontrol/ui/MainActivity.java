@@ -14,8 +14,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.houxy.bluetoothcontrol.C;
@@ -41,6 +44,13 @@ import top.wuhaojie.bthelper.receiver.BtConnectionLostReceiver;
 import top.wuhaojie.bthelper.receiver.BtStateReceiver;
 
 
+/**
+ * 本来是用来展示可以连接设备的一个页面，
+ * 但后来感觉用dialog来展示更加方便，所以已经弃用。
+ */
+
+
+@Deprecated
 public class MainActivity extends AppCompatActivity {
 
     @Bind(R.id.recyclerView)
@@ -58,11 +68,6 @@ public class MainActivity extends AppCompatActivity {
     private static boolean isSearching = false;
     private int bondedDeviceNum=0;
 
-    /**
-     * TODO:1.新的设备 搜索动画的添加
-     *      2.一个专门的线程检测连接请求
-     *      3.连接和接受连接请求的处理
-     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 builder.setPositiveButton("开始聊天", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = ChatActivity.getIntentStartActivity(MainActivity.this, device.getName(), C.CONNECT_TYPE_SERVER);
+                        Intent intent = ChatActivity.getIntentStartActivity(MainActivity.this, device.getName());
                         startActivity(intent);
                         dialog.dismiss();
                     }
@@ -302,8 +307,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (item.getItemId()){
             case R.id.action_send:
-                Intent intent = ChatActivity.getIntentStartActivity(MainActivity.this, mDevice.getDeviceName(),
-                        C.CONNECT_TYPE_CLIENT);
+                Intent intent = ChatActivity.getIntentStartActivity(MainActivity.this, mDevice.getDeviceName());
                 startActivity(intent);
                 break;
             case R.id.action_setting:
@@ -316,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.action_select:
-//                showDeviceSelectDialog();
+                showDeviceSelectDialog();
                 break;
             default:break;
         }
@@ -324,12 +328,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showDeviceSelectDialog() {
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.dialog_device_select_rv);
-        RecyclerView recyclerView = (RecyclerView)dialog.findViewById(R.id.recyclerView);
 
-        dataItems = new ArrayList<>();
+
+        final ArrayList<DataItem> dataItems = new ArrayList<>();
         btAdapter = new BtAdapter(dataItems);
+
         btAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(final int position) {
@@ -384,13 +387,101 @@ public class MainActivity extends AppCompatActivity {
             bondedDeviceNum = btHelperClient.getBondedDevices().size();
         }
 
-        recyclerView.setAdapter(btAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new RecyclerViewUtil.SpaceItemDecoration(DensityUtil.dip2px(this, 10)));
-        dialog.setTitle("选择一个连接设备");
-        dialog.setCancelable(true);
 
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        View convertView = getLayoutInflater().inflate(R.layout.dialog_device_select_rv, null);
+        alertDialog.setView(convertView);
+        alertDialog.setTitle("选择连接设备");
+
+        RecyclerView rv = (RecyclerView) convertView.findViewById(R.id.recyclerView);
+        rv.setAdapter(btAdapter);
+        rv.setLayoutManager(new LinearLayoutManager(this));
+        rv.addItemDecoration(new RecyclerViewUtil.SpaceItemDecoration(DensityUtil.dip2px(this, 10)));
+
+        alertDialog.setPositiveButton("扫描设备", null);
+        AlertDialog dialog = alertDialog.create();
         dialog.show();
+
+        final Button searchBt= dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        if( null != searchBt){
+            searchBt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    searchBt.setVisibility(View.GONE);
+                    btHelperClient.searchDevices(new OnSearchDeviceListener() {
+
+                        @Override
+                        public void onStartDiscovery() {
+                            isSearching = true;
+                            if( isFirstSearch ){
+                                DataItem<NewDeviceHeader> dataItem = new DataItem<NewDeviceHeader>();
+                                dataItem.setType(C.DATA_TYPE_DEVICE_NEW_HEADER);
+                                NewDeviceHeader newDeviceHeader = new NewDeviceHeader("可用设备", true);
+                                dataItem.setData(newDeviceHeader);
+                                dataItems.add(dataItem);
+                                btAdapter.notifyItemInserted(dataItems.size()-1);
+                                isFirstSearch = false;
+                            }else {
+
+                                if( bondedDeviceNum + 2 < dataItems.size()){
+                                    int j=0;
+                                    for (int i=bondedDeviceNum+2; i<dataItems.size(); i++){
+                                        dataItems.remove(i);
+                                        j++;
+                                    }
+                                    btAdapter.notifyItemRangeRemoved(bondedDeviceNum+2, j);
+                                }
+
+                                NewDeviceHeader newDeviceHeader = (NewDeviceHeader) dataItems.get(dataItems.size()-1).getData();
+                                newDeviceHeader.setProgressBarState(true);
+                                btAdapter.notifyItemChanged(dataItems.size()-1);
+                            }
+                        }
+
+                        @Override
+                        public void onNewDeviceFound(BluetoothDevice device) {
+                            Log.d("TAG", "FOUND : " + device.getName());
+                            DataItem<Device> deviceItem = new DataItem<Device>();
+                            deviceItem.setType(C.DATA_TYPE_DEVICE_NEW);
+                            deviceItem.setData(new Device(device.getName(), device.getAddress()));
+                            dataItems.add(deviceItem);
+                            btAdapter.notifyItemInserted(dataItems.size()-1);
+                        }
+
+                        @Override
+                        public void onSearchCompleted(List<BluetoothDevice> bondedList, List<BluetoothDevice> newList) {
+
+                            //隐藏progressbar
+                            int pos = bondedDeviceNum + 1;
+                            Log.d("TAG", ">>>>>>>>>>>>>>>" + pos +">>>>>>>>>>>>");
+                            NewDeviceHeader newDeviceHeader = (NewDeviceHeader)dataItems.get(pos).getData();
+                            newDeviceHeader.setProgressBarState(false);
+                            btAdapter.notifyItemChanged(pos);
+                            //如果没有搜索到可用设备
+                            if(newList.size()==0){
+                                DataItem<NoDeviceFoundHeader> dataItem = new DataItem<NoDeviceFoundHeader>();
+                                dataItem.setType(C.DATA_TYPE_NO_DEVICE_FOUND);
+                                NoDeviceFoundHeader noDeviceFoundHeader = new NoDeviceFoundHeader("没有搜到可用的设备...WoW");
+                                dataItem.setData(noDeviceFoundHeader);
+                                dataItems.add(dataItem);
+                                btAdapter.notifyItemInserted(dataItems.size()-1);
+                            }
+                            isSearching = false;
+                            Toast.makeText(MainActivity.this, "搜索完毕...qwq", Toast.LENGTH_SHORT).show();
+                            Log.d("TAG", " search ok");
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            Log.e("TAG", "Search error : " + e.toString());
+                        }
+                    });
+                }
+            });
+        }
+
+
+
 
     }
 

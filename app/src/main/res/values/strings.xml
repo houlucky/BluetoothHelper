@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BluetoothHelper</string>
+    <string name="app_name">BTChat</string>
     <string name="bonded_device">已配对设备</string>
     <string name="new_device">新的设备</string>
     <string name="connected">已连接</string>
@@ -8,4 +8,5 @@
     <string name="action_send_data">请输入待发送的数据</string>
     <string name="action_scan">搜索设备</string>
     <string name="action_select">选择一个连接设备</string>
+    <string name="action_device_name">未连接</string>
 </resources>

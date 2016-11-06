@@ -11,8 +11,9 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
         app:popupTheme="@style/OverflowMenuStyle"
-        app:contentInsetStart="0dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:title="@string/app_name"
+        android:paddingStart="15dp"
         >
 
     </android.support.v7.widget.Toolbar>
@@ -44,7 +45,7 @@
             android:layout_gravity="bottom"
             android:layout_marginEnd="5dp"
             android:layout_marginStart="5dp"
-            android:textColor="@android:color/white"
+            android:textColor="@drawable/btn_txt_bg_selector"
             android:background="@drawable/btn_bg_selector"
             />
 
@@ -58,6 +59,7 @@
         android:layout_below="@+id/toolbar"
         android:layout_alignParentStart="true"
         android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         >
 
     </android.support.v7.widget.RecyclerView>
