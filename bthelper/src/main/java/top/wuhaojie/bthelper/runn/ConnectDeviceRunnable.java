@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
+
 import top.wuhaojie.bthelper.Constants;
 import top.wuhaojie.bthelper.i.IConnectionListener;
-import top.wuhaojie.bthelper.i.OnReceiveMessageListener;
 
 /**
  * Created by Houxy on 2016/11/2.
@@ -63,7 +63,6 @@ public class ConnectDeviceRunnable implements Runnable {
     public void run() {
         // always return a remote device
         BluetoothDevice remoteDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
-//            mBluetoothAdapter.cancelDiscovery();
         try {
             mHandler.sendEmptyMessage(HANDLER_WHAT_CONNECTION_START);
             Log.d("TAG", "prepare to connect: " + remoteDevice.getAddress() + " " + remoteDevice.getName());
@@ -73,24 +72,6 @@ public class ConnectDeviceRunnable implements Runnable {
             mOutputStream = mSocket.getOutputStream();
             mHandler.sendEmptyMessage(HANDLER_WHAT_CONNECTION_SUCCESS);
 
-//            boolean runFlag = true;
-//            int n=0;
-//            byte[] buffer = new byte[32];
-//            StringBuilder stringBuilder = new StringBuilder();
-//            while (runFlag){
-////                DataInputStream dataInputStream = new DataInputStream(mInputStream);
-//                try {
-//                        n = mInputStream.read(buffer);
-//                        String s = new String(buffer, 0, n);
-//                        stringBuilder.append(s);
-//
-//                    Log.d("TAG", "re mes : " + stringBuilder.toString());
-//                    stringBuilder.delete(0, n);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                    runFlag = false;
-//                }
-//            }
 
         } catch (Exception e) {
             Message message = new Message();
@@ -118,27 +99,4 @@ public class ConnectDeviceRunnable implements Runnable {
             return mOutputStream;
         return null;
     }
-
-    public void receiveMessage(InputStream inputStream) {
-
-        OnReceiveMessageListener onReceiveMessageListener = new OnReceiveMessageListener() {
-            @Override
-            public void onNewLine(String s) {
-
-            }
-
-            @Override
-            public void onConnectionLost() {
-
-            }
-
-            @Override
-            public void onError(Exception e) {
-
-            }
-        };
-        ReadRunnable readRunnable = new ReadRunnable(onReceiveMessageListener, inputStream);
-
-    }
-
 }

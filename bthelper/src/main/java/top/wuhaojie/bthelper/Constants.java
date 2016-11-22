@@ -9,6 +9,4 @@ public interface Constants {
     String REMOTE_DEVICE = "remote_device";
     int CONNECT_TYPE_SERVER = 0;
     int CONNECT_TYPE_CLIENT = 1;
-    int STATUS_OK = 1;
-    int STATUS_ERROR = -1;
 }

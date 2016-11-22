@@ -1,6 +1,5 @@
 package com.houxy.bluetoothcontrol.ui;
 
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -14,7 +13,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,7 +34,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import top.wuhaojie.bthelper.receiver.BroadcastType;
-import top.wuhaojie.bthelper.BtHelperClient;
+import top.wuhaojie.bthelper.BtHelper;
 import top.wuhaojie.bthelper.i.IConnectionListener;
 import top.wuhaojie.bthelper.i.OnSearchDeviceListener;
 import top.wuhaojie.bthelper.receiver.BtAcceptReceiver;
@@ -57,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
-    private BtHelperClient btHelperClient;
+    private BtHelper mBtHelper;
     private BtAdapter btAdapter;
     private ArrayList<DataItem> dataItems;
     private Device mDevice;//配对成功的设备
@@ -74,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        btHelperClient = BtHelperClient.getDefault();
+        mBtHelper = BtHelper.getDefault();
         initView();
         initReceiver();
     }
@@ -92,10 +90,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void OnBtStateON() {
-                if(null != btHelperClient.getBondedDevices() && dataItems.size() == 1){
+                if(null != mBtHelper.getBondedDevices() && dataItems.size() == 1){
 
                     int j=0;
-                    for(BluetoothDevice bluetoothDevice : btHelperClient.getBondedDevices()){
+                    for(BluetoothDevice bluetoothDevice : mBtHelper.getBondedDevices()){
                         j++;
                         DataItem<Device> dataItem = new DataItem<Device>();
                         dataItem.setType(C.DATA_TYPE_DEVICE_BONDED);
@@ -104,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     btAdapter.notifyItemRangeInserted(1, j);
                 }
-                bondedDeviceNum = btHelperClient.getBondedDevices().size();
+                bondedDeviceNum = mBtHelper.getBondedDevices().size();
 
                 Log.d("TAG", ">>>>>>>>>>>>>>>>>OnBtStateON>>>>>>>>>>>>");
             }
@@ -146,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadDevice() {
-        btHelperClient.searchDevices(new OnSearchDeviceListener() {
+        mBtHelper.searchDevices(new OnSearchDeviceListener() {
 
             @Override
             public void onStartDiscovery() {
@@ -240,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(final int position) {
                 Device device = (Device) dataItems.get(position).getData();
-                btHelperClient.connectDevice(device.getDeviceAddress(), new IConnectionListener() {
+                mBtHelper.connectDevice(device.getDeviceAddress(), new IConnectionListener() {
 
                     ProgressDialog progressDialog;
 
@@ -279,15 +277,15 @@ public class MainActivity extends AppCompatActivity {
 
         DataItem<String> dataItem = new DataItem<>(C.DATA_TYPE_DEVICE_BONDED_HEADER, "已配对设备");
         dataItems.add(dataItem);
-        if(null != btHelperClient.getBondedDevices()){
+        if(null != mBtHelper.getBondedDevices()){
 
-            for(BluetoothDevice bluetoothDevice : btHelperClient.getBondedDevices()){
+            for(BluetoothDevice bluetoothDevice : mBtHelper.getBondedDevices()){
                 DataItem<Device> deviceItem = new DataItem<>();
                 deviceItem.setType(C.DATA_TYPE_DEVICE_BONDED);
                 deviceItem.setData(new Device(bluetoothDevice.getName(), bluetoothDevice.getAddress()));
                 dataItems.add(deviceItem);
             }
-            bondedDeviceNum = btHelperClient.getBondedDevices().size();
+            bondedDeviceNum = mBtHelper.getBondedDevices().size();
         }
 
         recyclerView.setAdapter(btAdapter);
@@ -337,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(final int position) {
                 Device device = (Device) dataItems.get(position).getData();
-                btHelperClient.connectDevice(device.getDeviceAddress(), new IConnectionListener() {
+                mBtHelper.connectDevice(device.getDeviceAddress(), new IConnectionListener() {
 
                     ProgressDialog progressDialog;
 
@@ -376,15 +374,15 @@ public class MainActivity extends AppCompatActivity {
 
         DataItem<String> dataItem = new DataItem<>(C.DATA_TYPE_DEVICE_BONDED_HEADER, "已配对设备");
         dataItems.add(dataItem);
-        if(null != btHelperClient.getBondedDevices()){
+        if(null != mBtHelper.getBondedDevices()){
 
-            for(BluetoothDevice bluetoothDevice : btHelperClient.getBondedDevices()){
+            for(BluetoothDevice bluetoothDevice : mBtHelper.getBondedDevices()){
                 DataItem<Device> deviceItem = new DataItem<>();
                 deviceItem.setType(C.DATA_TYPE_DEVICE_BONDED);
                 deviceItem.setData(new Device(bluetoothDevice.getName(), bluetoothDevice.getAddress()));
                 dataItems.add(deviceItem);
             }
-            bondedDeviceNum = btHelperClient.getBondedDevices().size();
+            bondedDeviceNum = mBtHelper.getBondedDevices().size();
         }
 
 
@@ -408,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     searchBt.setVisibility(View.GONE);
-                    btHelperClient.searchDevices(new OnSearchDeviceListener() {
+                    mBtHelper.searchDevices(new OnSearchDeviceListener() {
 
                         @Override
                         public void onStartDiscovery() {

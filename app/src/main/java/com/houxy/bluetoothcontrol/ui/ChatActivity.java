@@ -1,7 +1,6 @@
 package com.houxy.bluetoothcontrol.ui;
 
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,14 +29,6 @@ import com.houxy.bluetoothcontrol.adapter.BtAdapter;
 import com.houxy.bluetoothcontrol.adapter.ChatAdapter;
 import com.houxy.bluetoothcontrol.base.i.OnItemClickListener;
 import com.houxy.bluetoothcontrol.bean.DataItem;
-
-import top.wuhaojie.bthelper.i.IConnectionListener;
-import top.wuhaojie.bthelper.i.OnSearchDeviceListener;
-import top.wuhaojie.bthelper.receiver.BroadcastType;
-import top.wuhaojie.bthelper.receiver.BtAcceptReceiver;
-import top.wuhaojie.bthelper.receiver.BtConnectionLostReceiver;
-import top.wuhaojie.bthelper.receiver.MessageReceiver;
-
 import com.houxy.bluetoothcontrol.bean.Device;
 import com.houxy.bluetoothcontrol.bean.NewDeviceHeader;
 import com.houxy.bluetoothcontrol.bean.NoDeviceFoundHeader;
@@ -49,9 +40,15 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import top.wuhaojie.bthelper.BtHelperClient;
+import top.wuhaojie.bthelper.BtHelper;
 import top.wuhaojie.bthelper.bean.MessageItem;
+import top.wuhaojie.bthelper.i.IConnectionListener;
+import top.wuhaojie.bthelper.i.OnSearchDeviceListener;
 import top.wuhaojie.bthelper.i.OnSendMessageListener;
+import top.wuhaojie.bthelper.receiver.BroadcastType;
+import top.wuhaojie.bthelper.receiver.BtAcceptReceiver;
+import top.wuhaojie.bthelper.receiver.BtConnectionLostReceiver;
+import top.wuhaojie.bthelper.receiver.MessageReceiver;
 
 /**
  * Created by Houxy on 2016/11/2.
@@ -96,7 +93,10 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             protected void OnReceiveMessage(String message) {
                 DataItem<String> dataItem = new DataItem<>();
-                dataItem.setData(mDeviceName + " : " + message);
+//                StringBuilder stringBuilder = new StringBuilder(message);
+//                stringBuilder.insert(1, ".");
+//                dataItem.setData(mDeviceName + " : " + "distance --> "+ stringBuilder.toString() + "m");
+                dataItem.setData(mDeviceName + " : "+ message);
                 dataItem.setType(C.MESSAGE_TYPE_RECEIVE_TXT);
                 dataItems.add(dataItem);
                 mChatAdapter.notifyItemInserted(dataItems.size()-1);
@@ -114,7 +114,7 @@ public class ChatActivity extends AppCompatActivity {
                 toolbar.getMenu().findItem(R.id.action_device_name).setTitle("未连接");
                 Toast.makeText(ChatActivity.this, "连接中断,请重新连接...zzZ", Toast.LENGTH_SHORT).show();
 
-                BtHelperClient.getDefault().close();
+                BtHelper.getDefault().close();
             }
         };
         registerReceiver(mBtConnectionLostReceiver, new IntentFilter(BroadcastType.BROADCAST_TYPE_CONNECTION_LOST));
@@ -158,10 +158,10 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!dataEt.getText().toString().isEmpty()){
-                    BtHelperClient.getDefault().sendMessage(new MessageItem(dataEt.getText().toString()), new OnSendMessageListener() {
+                    BtHelper.getDefault().sendMessage(new MessageItem(dataEt.getText().toString()),
+                            new OnSendMessageListener() {
                         @Override
                         public void onSuccess(String s) {
-                            Log.d("TAG", "SEND : " + s);
                             DataItem<String> dataItem = new DataItem<String>();
                             dataItem.setData("我 : " + s);
                             dataItem.setType(C.MESSAGE_TYPE_SEND_TXT);
@@ -219,9 +219,9 @@ public class ChatActivity extends AppCompatActivity {
 
         DataItem<String> dataItem = new DataItem<>(C.DATA_TYPE_DEVICE_BONDED_HEADER, "已配对设备");
         dataItems.add(dataItem);
-        if(null != BtHelperClient.getDefault().getBondedDevices()){
+        if(null != BtHelper.getDefault().getBondedDevices()){
 
-            for(BluetoothDevice bluetoothDevice : BtHelperClient.getDefault().getBondedDevices()){
+            for(BluetoothDevice bluetoothDevice : BtHelper.getDefault().getBondedDevices()){
                 DataItem<Device> deviceItem = new DataItem<>();
                 deviceItem.setType(C.DATA_TYPE_DEVICE_BONDED);
                 deviceItem.setData(new Device(bluetoothDevice.getName(), bluetoothDevice.getAddress()));
@@ -249,7 +249,7 @@ public class ChatActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     searchBt.setVisibility(View.GONE);
-                    BtHelperClient.getDefault().searchDevices(new OnSearchDeviceListener() {
+                    BtHelper.getDefault().searchDevices(new OnSearchDeviceListener() {
 
                         @Override
                         public void onStartDiscovery() {
@@ -276,7 +276,7 @@ public class ChatActivity extends AppCompatActivity {
                         public void onSearchCompleted(List<BluetoothDevice> bondedList, List<BluetoothDevice> newList) {
 
                             //隐藏progressbar
-                            int pos = BtHelperClient.getDefault().getBondedDevices().size() + 1;
+                            int pos = BtHelper.getDefault().getBondedDevices().size() + 1;
                             Log.d("TAG", ">>>>>>>>>>>>>>>" + pos +">>>>>>>>>>>>");
                             NewDeviceHeader newDeviceHeader = (NewDeviceHeader)dataItems.get(pos).getData();
                             newDeviceHeader.setProgressBarState(false);
@@ -306,7 +306,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onItemClick(final int position) {
                 Device device = (Device) dataItems.get(position).getData();
-                BtHelperClient.getDefault().connectDevice(device.getDeviceAddress(), new IConnectionListener() {
+                BtHelper.getDefault().connectDevice(device.getDeviceAddress(), new IConnectionListener() {
 
                     ProgressDialog progressDialog;
 
@@ -339,7 +339,7 @@ public class ChatActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                         Toast.makeText(ChatActivity.this, "配对失败...zzZ", Toast.LENGTH_SHORT).show();
                         Log.e("TAG", "配对失败" + e.toString());
-                        BtHelperClient.getDefault().close();
+                        BtHelper.getDefault().close();
                     }
                 });
             }
@@ -348,7 +348,7 @@ public class ChatActivity extends AppCompatActivity {
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                BtHelperClient.getDefault().close();
+                BtHelper.getDefault().close();
             }
         });
     }

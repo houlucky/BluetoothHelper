@@ -62,9 +62,9 @@ public class WriteRunnable implements Runnable {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
             try {
                 writer.write(mMessageItem.getData());
-                writer.newLine();
+//                writer.newLine();//换行显示
                 writer.flush();
-                Log.d(TAG, "send: " + mMessageItem.getData());
+                Log.d("TAG", "send: " + mMessageItem.getData());
                 Message message = new Message();
                 message.what = HANDLER_WHAT_SEND_SUCCESS;
                 message.obj = mMessageItem.getData();

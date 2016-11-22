@@ -1,11 +1,11 @@
 package top.wuhaojie.bthelper.runn;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
+import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import top.wuhaojie.bthelper.i.OnReceiveMessageListener;
 
@@ -15,8 +15,6 @@ import top.wuhaojie.bthelper.i.OnReceiveMessageListener;
 
 public class ReadRunnable implements Runnable {
 
-    private static final int HANDLER_WHAT_NEW_MSG=1;
-    private static final int HANDLER_CONNECTION_INTERRUPTED=2;
     private OnReceiveMessageListener mListener;
     private InputStream mInputStream;
 
@@ -25,33 +23,31 @@ public class ReadRunnable implements Runnable {
         mInputStream = inputStream;
     }
 
-    private Handler mHandler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case HANDLER_WHAT_NEW_MSG:
-                    String s = (String) msg.obj;
-                    mListener.onNewLine(s);
-                    break;
-            }
-        }
-    };
-
     @Override
     public void run() {
         if( null != mInputStream){
 
             boolean runFlag = true;
             int n;
-            byte[] buffer = new byte[256];
+            char[] buffer = new char[1024];
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(mInputStream));
             while (runFlag){
-                //TODO ???
-//                DataInputStream dataInputStream = new DataInputStream(mInputStream);
                 try {
-                    n = mInputStream.read(buffer);
+
+                    if(mInputStream.available() <= 0){
+                        continue;
+                    }else {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    n = bufferedReader.read(buffer);
                     String s = new String(buffer, 0, n);
+                    Log.d("TAG", "receive : "+ s);
                     mListener.onNewLine(s);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                     runFlag = false;

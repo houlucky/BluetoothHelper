@@ -2,7 +2,7 @@ package com.houxy.bluetoothcontrol;
 
 import android.app.Application;
 
-import top.wuhaojie.bthelper.BtHelperClient;
+import top.wuhaojie.bthelper.BtHelper;
 
 /**
  * Created by Houxy on 2016/11/2.
@@ -40,6 +40,6 @@ public class BluetoothHelperApplication extends Application{
             cacheDir = getApplicationContext().getCacheDir().toString();
         }
 
-        BtHelperClient.init(BluetoothHelperApplication.getContext());
+        BtHelper.init(BluetoothHelperApplication.getContext());
     }
 }

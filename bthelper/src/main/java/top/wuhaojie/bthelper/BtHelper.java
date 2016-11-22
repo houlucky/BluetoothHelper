@@ -2,13 +2,12 @@ package top.wuhaojie.bthelper;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.text.TextUtils;
 import android.util.Log;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -31,7 +30,7 @@ import top.wuhaojie.bthelper.runn.WriteRunnable;
  * Bluetooth Helper as a Client.
  * Created by wuhaojie on 2016/9/7 18:57.
  */
-public class BtHelperClient {
+public class BtHelper {
 
     private static final String DEVICE_HAS_NOT_BLUETOOTH_MODULE = "device has not bluetooth module!";
 
@@ -40,32 +39,32 @@ public class BtHelperClient {
     private AcceptRunnable mAcceptRunnable;
     private BluetoothAdapter mBluetoothAdapter;
 //    private volatile BtReceiver mReceiver;
-//    private static volatile BtHelperClient sBtHelperClient;
+//    private static volatile BtHelper sBtHelper;
     private BtReceiver mReceiver;
-    private static BtHelperClient sBtHelperClient;
+    private static BtHelper sBtHelper;
     private ExecutorService mExecutorService = Executors.newCachedThreadPool();
     private static int type = Constants.CONNECT_TYPE_SERVER;
 
     /**
-     * Obtains the BtHelperClient from the given context.
+     * Obtains the BtHelper from the given context.
      *
      * @param context context
      */
     public static void init(Context context) {
-        if (sBtHelperClient == null) {
-            synchronized (BtHelperClient.class) {
-                if (sBtHelperClient == null)
-                    sBtHelperClient = new BtHelperClient(context);
+        if (sBtHelper == null) {
+            synchronized (BtHelper.class) {
+                if (sBtHelper == null)
+                    sBtHelper = new BtHelper(context);
             }
         }
     }
 
-    public static BtHelperClient getDefault(){
-        if( null == sBtHelperClient){
-            throw new NullPointerException("you must be init BtHelperClient before you use it");
+    public static BtHelper getDefault(){
+        if( null == sBtHelper){
+            throw new NullPointerException("you must be init BtHelper before you use it");
         }
 
-        return sBtHelperClient;
+        return sBtHelper;
     }
 
     /**
@@ -73,7 +72,7 @@ public class BtHelperClient {
      *
      * @param context context
      */
-    private BtHelperClient(Context context) {
+    private BtHelper(Context context) {
         mContext = context.getApplicationContext();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         requestEnableBt();
