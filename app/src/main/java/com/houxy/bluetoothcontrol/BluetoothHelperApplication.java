@@ -40,6 +40,6 @@ public class BluetoothHelperApplication extends Application{
             cacheDir = getApplicationContext().getCacheDir().toString();
         }
 
-        BtHelper.init(BluetoothHelperApplication.getContext());
+        BtHelper.init(this);
     }
 }
