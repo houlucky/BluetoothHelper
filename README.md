@@ -6,7 +6,7 @@
 Use Gradle
 ```gradle
 dependencies {
-    compile 'com.github.houlucky.bluetoothHelper:bthelper:0.2.0'  
+    compile 'com.github.houlucky.bluetoothHelper:bthelper:0.3.0'
 }
 ```
 
@@ -15,7 +15,7 @@ Or Maven
 <dependency>
   <groupId>com.github.houlucky.bluetoothHelper</groupId>
   <artifactId>bthelper</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <type>pom</type>
 </dependency>
 ```
