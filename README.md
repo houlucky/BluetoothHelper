@@ -29,9 +29,9 @@ BtHelper.init(this);
 ```
 Then，you can do wahtever you want.
 - Get Instance
- ```java
- btHelper = BtHelper.getDefault();
- ```
+```java
+btHelper = BtHelper.getDefault();
+```
 - Search Bluetooth
 ```
 BtHelper.getDefault().searchDevices(new OnSearchDeviceListener() {
