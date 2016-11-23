@@ -105,13 +105,13 @@ mMessageReceiver = new MessageReceiver() {
 registerReceiver(mMessageReceiver, new IntentFilter(BroadcastType.BROADCAST_TYPE_RECEIVED_MESSAGE));
 ```
 - Close Connection
- ```java
-     @Override
-     protected void onDestroy() {
-         super.onDestroy();
-        BtHelper.getDefault().close();
-     }
- ```
+```java
+ @Override
+ protected void onDestroy() {
+    super.onDestroy();
+    BtHelper.getDefault().close();
+ }
+```
 
 
 
