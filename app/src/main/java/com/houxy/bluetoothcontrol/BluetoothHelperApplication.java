@@ -2,7 +2,7 @@ package com.houxy.bluetoothcontrol;
 
 import android.app.Application;
 
-import top.wuhaojie.bthelper.BtHelper;
+import com.houxya.bthelper.BtHelper;
 
 /**
  * Created by Houxy on 2016/11/2.

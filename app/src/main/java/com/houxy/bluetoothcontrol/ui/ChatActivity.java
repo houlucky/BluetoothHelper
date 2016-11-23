@@ -40,15 +40,15 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import top.wuhaojie.bthelper.BtHelper;
-import top.wuhaojie.bthelper.bean.MessageItem;
-import top.wuhaojie.bthelper.i.IConnectionListener;
-import top.wuhaojie.bthelper.i.OnSearchDeviceListener;
-import top.wuhaojie.bthelper.i.OnSendMessageListener;
-import top.wuhaojie.bthelper.receiver.BroadcastType;
-import top.wuhaojie.bthelper.receiver.BtAcceptReceiver;
-import top.wuhaojie.bthelper.receiver.BtConnectionLostReceiver;
-import top.wuhaojie.bthelper.receiver.MessageReceiver;
+import com.houxya.bthelper.BtHelper;
+import com.houxya.bthelper.bean.MessageItem;
+import com.houxya.bthelper.i.IConnectionListener;
+import com.houxya.bthelper.i.OnSearchDeviceListener;
+import com.houxya.bthelper.i.OnSendMessageListener;
+import com.houxya.bthelper.receiver.BroadcastType;
+import com.houxya.bthelper.receiver.BtAcceptReceiver;
+import com.houxya.bthelper.receiver.BtConnectionLostReceiver;
+import com.houxya.bthelper.receiver.MessageReceiver;
 
 /**
  * Created by Houxy on 2016/11/2.
