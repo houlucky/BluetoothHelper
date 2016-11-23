@@ -1,7 +1,25 @@
 # 蓝牙操作库
 
-
 **这是一个可以帮助你快速开发蓝牙的类库，欢迎Fork和Star！！！**
+
+## 依赖
+Use Gradle
+```gradle
+dependencies {
+    compile 'com.github.houlucky.bluetoothHelper:bthelper:0.2.0'  
+}
+```
+
+Or Maven
+```xml
+<dependency>
+  <groupId>com.github.houlucky.bluetoothHelper</groupId>
+  <artifactId>bthelper</artifactId>
+  <version>0.2.0</version>
+  <type>pom</type>
+</dependency>
+```
+
 
 ## 用法
 
