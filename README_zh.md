@@ -1,5 +1,5 @@
 # 蓝牙操作库
-[中文](https://github.com/houlucky/BluetoothHelper/blob/master/README_zh.md) | [English](https://github.com/a-voyager/BluetoothHelper/blob/master/README.md)
+[中文](https://github.com/houlucky/BluetoothHelper/blob/master/README_zh.md) | [English](https://github.com/houlucky/BluetoothHelper)
 
 **这是一个可以帮助你快速开发蓝牙的类库，欢迎Fork和Star！！！**
 

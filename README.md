@@ -1,5 +1,5 @@
 # Bluetooth Operation Library
-[中文](https://github.com/houlucky/BluetoothHelper/blob/master/README_zh.md) | [English](https://github.com/a-voyager/BluetoothHelper/blob/master/README.md)
+[中文](https://github.com/houlucky/BluetoothHelper/blob/master/README_zh.md) | [English](https://github.com/houlucky/BluetoothHelper)
 
 **A library can help you  operate Bluetooth quickly**
 
