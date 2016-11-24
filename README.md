@@ -24,7 +24,7 @@ Or Maven
 
 ## Usage
 First，Init BtHelper in your Application.
-```
+```java
 BtHelper.init(this);
 ```
 Then，you can do wahtever you want.
@@ -33,7 +33,7 @@ Then，you can do wahtever you want.
 btHelper = BtHelper.getDefault();
 ```
 - Search Bluetooth
-```
+```java
 BtHelper.getDefault().searchDevices(new OnSearchDeviceListener() {
 
     @Override
@@ -54,11 +54,11 @@ BtHelper.getDefault().searchDevices(new OnSearchDeviceListener() {
 });
 ```
 - Get bounded devices
-```
+```java
 ArrayList<BluetoothDevice> bondedDevices = BtHelper.getDefault().getBondedDevices()；
 ```
 - Bluetooth  Pairing
-```
+```java
 BtHelper.getDefault().connectDevice(“mac addr”, new IConnectionListener() {
 
     @Override
@@ -76,7 +76,7 @@ BtHelper.getDefault().connectDevice(“mac addr”, new IConnectionListener() {
 ```
 
 - Send message to the remote device.
- ```java
+```java
 BtHelper.getDefault().sendMessage(new MessageItem("str"),new OnSendMessageListener() {
     @Override
     public void onSuccess(String s) {
@@ -92,9 +92,9 @@ BtHelper.getDefault().sendMessage(new MessageItem("str"),new OnSendMessageListen
 
     }
 });
- ```
-- Receive the message from the remote device
 ```
+- Receive the message from the remote device
+```java
 mMessageReceiver = new MessageReceiver() {
     @Override
     protected void OnReceiveMessage(String message) {
